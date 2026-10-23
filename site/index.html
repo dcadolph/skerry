@@ -3,10 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
 <title>Skerry</title>
+<meta name="description" content="Skerry is a free, open source Markdown notes app for Mac. Your notes are plain files in folders you control, and any note can be sealed with AES-256-GCM.">
 <meta property="og:title" content="Skerry">
+<meta property="og:description" content="Markdown notes in your own files, sealed with a key only you hold. Free and open source.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://skerrynotes.com/">
+<meta property="og:image" content="https://skerrynotes.com/skelly.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -14,61 +17,74 @@
   :root {
     --bg: #08080a;
     --bg-glow: #121216;
+    --panel: #111114;
+    --line: #24232a;
     --fg: #f3f1ec;
-    --dim: #7c766d;
+    --mist: #b3ada4;
+    --dim: #8a847b;
     --beak: #e58150;
+    --code: #17161b;
   }
 
   @media (prefers-color-scheme: light) {
     :root {
       --bg: #f4f1ea;
       --bg-glow: #ffffff;
+      --panel: #fbf9f4;
+      --line: #e2ddd2;
       --fg: #1b1a1f;
-      --dim: #7c766d;
-      --beak: #c0603c;
+      --mist: #4a4741;
+      --dim: #6f6a62;
+      --beak: #b4562f;
+      --code: #ece8de;
     }
   }
 
   * { box-sizing: border-box; }
 
-  html, body { height: 100%; }
+  html { -webkit-text-size-adjust: 100%; }
 
   body {
     margin: 0;
-    display: grid;
-    place-items: center;
-    padding: 2rem;
     background: var(--bg);
-    background-image: radial-gradient(ellipse 90% 60% at 50% 0%, var(--bg-glow), var(--bg) 70%);
+    background-image: radial-gradient(ellipse 90% 40rem at 50% 0%, var(--bg-glow), var(--bg) 70%);
+    background-repeat: no-repeat;
     color: var(--fg);
     font-family: ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
 
-  main {
+  a { color: var(--beak); text-underline-offset: 0.18em; }
+
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.88em;
+    background: var(--code);
+    border-radius: 5px;
+    padding: 0.1em 0.35em;
+  }
+
+  .wrap {
+    max-width: 68rem;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  header.hero {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
     text-align: center;
+    padding: 5rem 0 3.5rem;
     animation: rise 1.1s cubic-bezier(0.2, 0.7, 0.3, 1) both;
   }
 
-  img {
-    width: min(180px, 42vw);
+  .hero img {
+    width: min(150px, 38vw);
     height: auto;
-    display: block;
     border-radius: 50%;
-  }
-
-  p {
-    margin: 0;
-    font-size: clamp(1.15rem, 1rem + 1.1vw, 1.6rem);
-    font-weight: 400;
-    letter-spacing: 0.01em;
-    line-height: 1.5;
-    max-width: 22ch;
-    text-wrap: balance;
   }
 
   .mark {
@@ -78,16 +94,151 @@
     border-radius: 2px;
     background: var(--beak);
     opacity: 0.85;
+    margin: 1.75rem auto;
   }
 
-  footer {
-    position: fixed;
-    bottom: 1.75rem;
-    font-size: 0.75rem;
-    letter-spacing: 0.14em;
+  h1 {
+    margin: 0;
+    font-size: clamp(2.4rem, 1.8rem + 2.6vw, 3.6rem);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .lede {
+    margin: 1rem 0 0;
+    max-width: 34ch;
+    font-size: clamp(1.15rem, 1rem + 0.8vw, 1.45rem);
+    color: var(--mist);
+    text-wrap: balance;
+  }
+
+  .status {
+    margin: 1.75rem 0 0;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--dim);
   }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .button {
+    display: inline-block;
+    padding: 0.7rem 1.25rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--fg);
+    text-decoration: none;
+    font-weight: 550;
+  }
+
+  .button.primary {
+    background: var(--beak);
+    border-color: var(--beak);
+    color: #fff;
+  }
+
+  .button:hover { border-color: var(--beak); }
+
+  .actions.start {
+    justify-content: flex-start;
+    margin: 1rem 0 1.25rem;
+  }
+
+  section {
+    padding: 3.5rem 0;
+    border-top: 1px solid var(--line);
+  }
+
+  h2 {
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.45rem, 1.2rem + 1vw, 1.9rem);
+    font-weight: 620;
+    letter-spacing: -0.01em;
+  }
+
+  .intro {
+    margin: 0 0 2rem;
+    max-width: 62ch;
+    color: var(--mist);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: 1rem;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 1.25rem 1.35rem;
+  }
+
+  .card h3 {
+    margin: 0 0 0.4rem;
+    font-size: 1.02rem;
+    font-weight: 620;
+  }
+
+  .card p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--mist);
+  }
+
+  .steps {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--mist);
+    max-width: 62ch;
+  }
+
+  .steps li { margin-bottom: 0.6rem; }
+
+  .platforms {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: 1rem;
+  }
+
+  .platforms .card p + p { margin-top: 0.6rem; }
+
+  pre {
+    margin: 0.75rem 0 0;
+    padding: 0.85rem 1rem;
+    overflow-x: auto;
+    background: var(--code);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  pre code { background: none; padding: 0; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 2rem 0 3rem;
+    font-size: 0.9rem;
+    color: var(--dim);
+  }
+
+  footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  footer a { color: var(--mist); }
 
   @keyframes rise {
     from { opacity: 0; transform: translateY(14px); }
@@ -95,16 +246,174 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    main { animation: none; }
+    header.hero { animation: none; }
   }
 </style>
 </head>
 <body>
-  <main>
-    <img src="skelly.png" alt="Skerry">
-    <span class="mark"></span>
-    <p>Looking for the perfect little island.</p>
-  </main>
-  <footer>Skerry</footer>
+  <div class="wrap">
+    <header class="hero">
+      <img src="skelly.png" alt="Skelly the puffin, Skerry's mascot">
+      <span class="mark"></span>
+      <h1>Skerry</h1>
+      <p class="lede">Markdown notes that live in your own files, sealed with a key only you hold.</p>
+      <p class="status">Free and open source. Still a work in progress.</p>
+      <div class="actions">
+        <a class="button primary" href="#get">Download for Mac</a>
+        <a class="button" href="https://github.com/dcadolph/skerry">Source on GitHub</a>
+      </div>
+    </header>
+
+    <section>
+      <h2>Your notes are just files</h2>
+      <p class="intro">A library is any folder you pick. Notes are <code>.md</code> files, folders
+        are folders, and attachments live in <code>assets/</code>. The only thing Skerry adds is a
+        <code>.skerry/</code> cache for the search index, and it rebuilds if you delete it. Delete
+        the app and your notes are still there, readable in any editor. The on-disk format is
+        written down in <a href="https://github.com/dcadolph/skerry/blob/main/FORMAT.md">FORMAT.md</a>.</p>
+      <div class="grid">
+        <div class="card">
+          <h3>No accounts</h3>
+          <p>No sign-up, no server, no analytics. Skerry never sends your notes anywhere you did
+            not point it.</p>
+        </div>
+        <div class="card">
+          <h3>Edits from anywhere</h3>
+          <p>Rename or move a note and the file moves on disk. Change a file in another editor and
+            Skerry picks it up within about a second.</p>
+        </div>
+        <div class="card">
+          <h3>Search that keeps up</h3>
+          <p>Full-text search runs on a local SQLite FTS5 index with prefix matching. The command
+            palette jumps to any note by fuzzy title or path.</p>
+        </div>
+        <div class="card">
+          <h3>Tags, stars, and a real Trash</h3>
+          <p>Tags with counts, starred and archived views, pinned notes, and a Trash that keeps
+            deleted notes for thirty days.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Encryption you can check</h2>
+      <p class="intro">Set a passphrase once, then seal any note from its menu. The scheme is
+        documented in FORMAT.md and the code is open.</p>
+      <div class="grid">
+        <div class="card">
+          <h3>AES-256-GCM per note</h3>
+          <p>A random 256-bit master key seals each note. The master key is wrapped by a key
+            stretched from your passphrase with Argon2id.</p>
+        </div>
+        <div class="card">
+          <h3>Nothing left in the clear</h3>
+          <p>A sealed note becomes an opaque <code>&lt;id&gt;.md</code> file. Its title, tags,
+            dates, and body are all ciphertext, and it stays out of the search index.</p>
+        </div>
+        <div class="card">
+          <h3>Keychain and Touch ID</h3>
+          <p>The passphrase is held in the Keychain and released only after you authenticate. A
+            one-time recovery code is a second way in.</p>
+        </div>
+        <div class="card">
+          <h3>Cheap passphrase changes</h3>
+          <p>Changing your passphrase re-wraps the master key, so no note has to be re-encrypted.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Writing</h2>
+      <p class="intro">The editor highlights Markdown as you type and hides the syntax away from the
+        cursor, so prose reads clean while the markers stay editable.</p>
+      <div class="grid">
+        <div class="card">
+          <h3>Linked notes</h3>
+          <p>Write <code>[[note name]]</code> to link a note. Following a link to a note that does
+            not exist yet creates it, and a backlinks bar lists every note that points here.</p>
+        </div>
+        <div class="card">
+          <h3>Lists, tasks, and tables</h3>
+          <p>Lists and quotes continue on Return. Task boxes toggle with a click and strike through
+            when done. Skerry lines up table columns, inserts footnotes, and highlights the syntax
+            inside code blocks.</p>
+        </div>
+        <div class="card">
+          <h3>Images in your folder</h3>
+          <p>Paste an image and it lands in <code>assets/</code> with a relative link, so the note
+            still works outside Skerry.</p>
+        </div>
+        <div class="card">
+          <h3>Export anything</h3>
+          <p>Export a note to Markdown, plain text, HTML, Rich Text, or PDF, or copy it as
+            Markdown, HTML, or plain text.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Sync and backup on storage you own</h2>
+      <p class="intro">Skerry runs no sync service of its own. You bring the storage.</p>
+      <div class="grid">
+        <div class="card">
+          <h3>Sync through WebDAV, S3, or a folder</h3>
+          <p>Everything is sealed with your vault key before upload. Edits to different paragraphs
+            merge, and real overlaps keep both versions for you to review.</p>
+        </div>
+        <div class="card">
+          <h3>Snapshots you can open</h3>
+          <p>Write browsable folder snapshots to any location, or encrypted snapshots to WebDAV or
+            S3. Automatic backup keeps the newest ten.</p>
+        </div>
+        <div class="card">
+          <h3>Version history</h3>
+          <p>Browse earlier versions of a note with previews and restore any of them.</p>
+        </div>
+        <div class="card">
+          <h3>Or use what you already have</h3>
+          <p>Because a library is a plain folder, iCloud Drive, Syncthing, rsync, or a NAS share
+            all work too.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="get">
+      <h2>Get Skerry</h2>
+      <p class="intro">Skerry is free under the Apache 2.0 license, with no paid tier. It is early
+        and changes often, so keep your own backups of anything that matters.</p>
+      <div class="platforms">
+        <div class="card">
+          <h3>Mac</h3>
+          <p>Version 0.24.1, signed with a Developer ID and notarized by Apple. Requires macOS 14
+            or later.</p>
+          <div class="actions start">
+            <a class="button primary" href="https://github.com/dcadolph/skerry/releases/latest">Download for Mac</a>
+          </div>
+          <p>Or install with Homebrew:</p>
+<pre><code>brew install --cask dcadolph/tap/skerry</code></pre>
+          <p>To build it yourself you need Xcode and
+            <a href="https://github.com/yonaskolb/XcodeGen">XcodeGen</a>. The steps are in the
+            <a href="https://github.com/dcadolph/skerry#building-from-source">README</a>.</p>
+        </div>
+        <div class="card">
+          <h3>iPhone and iPad</h3>
+          <p>The iOS app is not available yet.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="wrap">
+      <nav>
+        <a href="https://github.com/dcadolph/skerry">GitHub</a>
+        <a href="https://github.com/dcadolph/skerry/blob/main/FORMAT.md">File format</a>
+        <a href="https://github.com/dcadolph/skerry/issues">Report an issue</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="https://github.com/dcadolph/skerry/blob/main/LICENSE">Apache 2.0 license</a>
+      </nav>
+      <p>Skerry is free, open source, and a work in progress.</p>
+    </div>
+  </footer>
 </body>
 </html>
