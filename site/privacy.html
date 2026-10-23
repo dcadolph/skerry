@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Privacy</title>
+<meta property="og:title" content="Privacy">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  :root {
+    --bg: #08080a;
+    --bg-glow: #121216;
+    --fg: #f3f1ec;
+    --mist: #aca69d;
+    --dim: #7c766d;
+    --beak: #e58150;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f4f1ea;
+      --bg-glow: #ffffff;
+      --fg: #1b1a1f;
+      --mist: #4a4741;
+      --dim: #7c766d;
+      --beak: #c0603c;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100%;
+    padding: 4rem 1.5rem 6rem;
+    background: var(--bg);
+    background-image: radial-gradient(ellipse 90% 40% at 50% 0%, var(--bg-glow), var(--bg) 70%);
+    color: var(--fg);
+    font-family: ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main {
+    max-width: 62ch;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: clamp(1.8rem, 1.4rem + 1.6vw, 2.4rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0 0 0.4rem;
+  }
+
+  .effective {
+    margin: 0 0 2.5rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 2.5rem 0 0.6rem;
+  }
+
+  p { margin: 0 0 1rem; color: var(--mist); }
+
+  ul { margin: 0 0 1rem; padding-left: 1.2rem; color: var(--mist); }
+
+  li { margin-bottom: 0.4rem; }
+
+  a { color: var(--beak); }
+
+  .mark {
+    display: block;
+    width: 2rem;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--beak);
+    opacity: 0.85;
+    margin-bottom: 2.5rem;
+  }
+
+  footer {
+    max-width: 62ch;
+    margin: 4rem auto 0;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+</style>
+</head>
+<body>
+  <main>
+    <span class="mark"></span>
+    <h1>Privacy</h1>
+    <p class="effective">Effective 30 July 2026</p>
+
+    <p>Skerry collects nothing. It has no servers, no accounts, and no analytics. It does not
+      collect, receive, store, or transmit your content, your encryption key, or any personal
+      information. There is no backend to send anything to.</p>
+
+    <h2>What we collect</h2>
+    <p>Nothing. We hold no data about you, so there is none to disclose, sell, share, or hand
+      over, and none to lose in a breach.</p>
+
+    <h2>What stays on your device</h2>
+    <p>Everything. Your content and your keys remain on hardware you own, or on storage you
+      choose and control. We are not a party to that, and we never see the data or the keys.</p>
+
+    <h2>Tracking</h2>
+    <ul>
+      <li>No accounts and no sign-in.</li>
+      <li>No analytics, telemetry, crash reporting, or advertising.</li>
+      <li>No third-party components that collect data.</li>
+      <li>No cookies and no device fingerprinting.</li>
+    </ul>
+
+    <h2>Children</h2>
+    <p>Skerry gathers no personal information from anyone of any age. It is not directed at
+      children.</p>
+
+    <h2>Changes</h2>
+    <p>If Skerry ever offers an optional hosted service, this policy will be updated to describe
+      exactly what that service does before it ships. Any such service will be end to end
+      encrypted, so that we still cannot read your content.</p>
+
+    <h2>Contact</h2>
+    <p>Questions about privacy: <a href="mailto:hello@skerrynotes.com">hello@skerrynotes.com</a></p>
+  </main>
+  <footer>Skerry</footer>
+</body>
+</html>
