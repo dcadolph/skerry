@@ -1,26 +1,16 @@
 name: Release
 
-# Builds, Developer ID signs, notarizes, staples, and attaches a downloadable macOS build to a
-# published GitHub release. The macOS app group is team-id-prefixed, so Developer ID signing
-# needs no provisioning profile.
+# Builds, Developer ID signs, notarizes, staples, verifies, and attaches a downloadable macOS
+# build to a published GitHub release. The macOS app group is team-id-prefixed, so Developer ID
+# signing needs no provisioning profile. A release with any signing secret missing fails rather
+# than ship unsigned.
 #
-# Until the signing secrets below are configured the job runs as a green no-op, so a release cut
-# without them does not fail. Once they exist, publishing a release (or re-running this workflow)
-# produces the notarized build.
-#
-# Required repository secrets (Settings, Secrets and variables, Actions):
-#   DEVELOPER_ID_CERT_P12       Base64 of the exported Developer ID Application certificate and
-#                               its private key as a .p12. In Keychain Access export both, then
-#                               `base64 -i cert.p12 | pbcopy`.
-#   DEVELOPER_ID_CERT_PASSWORD  Password set when exporting the .p12.
-#   NOTARY_API_KEY_P8           Base64 of an App Store Connect API key (.p8). Create it under App
-#                               Store Connect, Users and Access, Integrations, Team Keys, then
-#                               `base64 -i AuthKey_XXXX.p8 | pbcopy`.
-#   NOTARY_API_KEY_ID           The key's Key ID.
-#   NOTARY_API_ISSUER_ID        The issuer UUID shown above the keys list.
-#
-# Apple signing in CI usually needs one real tagged run to settle. Read a rejected submission with
-# `xcrun notarytool log <submission-id>`.
+# Required repository secrets:
+#   MACOS_CERT_P12        Base64 of the Developer ID Application certificate and key as a .p12.
+#   MACOS_CERT_PASSWORD   Password set when exporting the .p12.
+#   NOTARY_KEY_P8         Contents of the App Store Connect API key (.p8).
+#   NOTARY_KEY_ID         The key's Key ID.
+#   NOTARY_ISSUER_ID      The issuer UUID shown above the keys list.
 
 on:
   release:
@@ -52,40 +42,38 @@ jobs:
         with:
           ref: ${{ github.event.release.tag_name || github.event.inputs.tag }}
 
-      - name: Check for signing secrets
-        id: secrets
+      - name: Require signing secrets
         env:
-          CERT: ${{ secrets.DEVELOPER_ID_CERT_P12 }}
-          KEY: ${{ secrets.NOTARY_API_KEY_P8 }}
+          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+          NOTARY_KEY_P8: ${{ secrets.NOTARY_KEY_P8 }}
+          NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
+          NOTARY_ISSUER_ID: ${{ secrets.NOTARY_ISSUER_ID }}
         run: |
-          if [ -n "$CERT" ] && [ -n "$KEY" ]; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Signing secrets not configured; skipping the signed build. See the header of release.yml to enable it."
-          fi
+          for name in MACOS_CERT_P12 MACOS_CERT_PASSWORD NOTARY_KEY_P8 NOTARY_KEY_ID NOTARY_ISSUER_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Secret $name is not set. A release must be signed and notarized."
+              exit 1
+            fi
+          done
 
       - name: Select Xcode and log the toolchain
-        if: steps.secrets.outputs.ready == 'true'
         run: |
-          XCODE="$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -n1 || true)"
+          XCODE="$(find /Applications -maxdepth 1 -name 'Xcode_16*.app' | sort -V | tail -n1)"
           if [ -n "$XCODE" ]; then sudo xcode-select -s "$XCODE"; fi
           xcodebuild -version
           swift --version
 
       - name: Install XcodeGen
-        if: steps.secrets.outputs.ready == 'true'
         run: brew install xcodegen
 
       - name: Generate the Xcode project
-        if: steps.secrets.outputs.ready == 'true'
         run: xcodegen generate
 
       - name: Import the Developer ID certificate
-        if: steps.secrets.outputs.ready == 'true'
         env:
-          CERT_P12: ${{ secrets.DEVELOPER_ID_CERT_P12 }}
-          CERT_PASSWORD: ${{ secrets.DEVELOPER_ID_CERT_PASSWORD }}
+          CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
         run: |
           KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
           KEYCHAIN_PASSWORD="$(uuidgen)"
@@ -101,7 +89,6 @@ jobs:
           rm -f "$RUNNER_TEMP/cert.p12"
 
       - name: Archive the macOS app
-        if: steps.secrets.outputs.ready == 'true'
         run: |
           xcodebuild archive \
             -project "$APP_NAME.xcodeproj" \
@@ -112,10 +99,10 @@ jobs:
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Developer ID Application" \
             DEVELOPMENT_TEAM="$TEAM_ID" \
-            ENABLE_HARDENED_RUNTIME=YES
+            ENABLE_HARDENED_RUNTIME=YES \
+            OTHER_CODE_SIGN_FLAGS=--timestamp
 
       - name: Export the signed app
-        if: steps.secrets.outputs.ready == 'true'
         run: |
           cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
@@ -135,36 +122,46 @@ jobs:
             -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist"
 
       - name: Notarize and staple
-        if: steps.secrets.outputs.ready == 'true'
         env:
-          NOTARY_API_KEY_P8: ${{ secrets.NOTARY_API_KEY_P8 }}
-          NOTARY_API_KEY_ID: ${{ secrets.NOTARY_API_KEY_ID }}
-          NOTARY_API_ISSUER_ID: ${{ secrets.NOTARY_API_ISSUER_ID }}
+          NOTARY_KEY_P8: ${{ secrets.NOTARY_KEY_P8 }}
+          NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
+          NOTARY_ISSUER_ID: ${{ secrets.NOTARY_ISSUER_ID }}
         run: |
+          set -euo pipefail
           APP="$RUNNER_TEMP/export/$APP_NAME.app"
-          echo "$NOTARY_API_KEY_P8" | openssl base64 -d -A > "$RUNNER_TEMP/notary.p8"
+          printf '%s' "$NOTARY_KEY_P8" > "$RUNNER_TEMP/notary.p8"
           ditto -c -k --keepParent "$APP" "$RUNNER_TEMP/notarize.zip"
           xcrun notarytool submit "$RUNNER_TEMP/notarize.zip" \
             --key "$RUNNER_TEMP/notary.p8" \
-            --key-id "$NOTARY_API_KEY_ID" \
-            --issuer "$NOTARY_API_ISSUER_ID" \
-            --wait
+            --key-id "$NOTARY_KEY_ID" \
+            --issuer "$NOTARY_ISSUER_ID" \
+            --wait --timeout 3h --output-format json > "$RUNNER_TEMP/notary.json"
+          cat "$RUNNER_TEMP/notary.json"
+          test "$(jq -r .status "$RUNNER_TEMP/notary.json")" = "Accepted"
           xcrun stapler staple "$APP"
           rm -f "$RUNNER_TEMP/notary.p8" "$RUNNER_TEMP/notarize.zip"
 
-      - name: Package the stapled app
+      - name: Package and verify as a user would
         id: package
-        if: steps.secrets.outputs.ready == 'true'
         env:
           TAG: ${{ github.event.release.tag_name || github.event.inputs.tag }}
         run: |
           ZIP="$RUNNER_TEMP/$APP_NAME-macOS-$TAG.zip"
           ditto -c -k --keepParent "$RUNNER_TEMP/export/$APP_NAME.app" "$ZIP"
+          check="$RUNNER_TEMP/verify"
+          mkdir -p "$check"
+          ditto -x -k "$ZIP" "$check"
+          xcrun stapler validate "$check/$APP_NAME.app"
+          spctl --assess --type execute --verbose=4 "$check/$APP_NAME.app"
+          codesign --verify --deep --strict --verbose=2 "$check/$APP_NAME.app"
           echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
+      - name: Remove signing keychain
+        if: always()
+        run: security delete-keychain "$RUNNER_TEMP/signing.keychain-db" || true
+
       - name: Attach the build to the release
-        if: steps.secrets.outputs.ready == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.package.outputs.tag }}
