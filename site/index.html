@@ -170,10 +170,36 @@
     color: var(--mist);
   }
 
-  .grid {
+  .grid, .proofs {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    grid-template-columns: 1fr;
     gap: 1rem;
+  }
+
+  @media (min-width: 40rem) {
+    .grid, .proofs { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (min-width: 64rem) {
+    .grid, .proofs { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .proofs { margin: 0 0 3.5rem; }
+
+  .proof {
+    padding: 0.2rem 0 0.2rem 1rem;
+    border-left: 2px solid var(--beak);
+  }
+
+  .proof strong {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: 620;
+  }
+
+  .proof span {
+    font-size: 0.92rem;
+    color: var(--mist);
   }
 
   .card {
@@ -263,6 +289,13 @@
         <a class="button" href="https://github.com/dcadolph/skerry">Source on GitHub</a>
       </div>
     </header>
+
+    <div class="proofs">
+      <div class="proof"><strong>Plain files</strong><span>Notes are .md files in a folder you pick. Delete the app and they stay.</span></div>
+      <div class="proof"><strong>Sealed per note</strong><span>AES-256-GCM with an Argon2id-wrapped key. Titles and tags are encrypted too.</span></div>
+      <div class="proof"><strong>Open and documented</strong><span>Apache 2.0 code, and the on-disk format is written down.</span></div>
+      <div class="proof"><strong>Your storage</strong><span>Sync through WebDAV, S3, or any folder. End-to-end sealed.</span></div>
+    </div>
 
     <section>
       <h2>Your notes are just files</h2>
