@@ -298,59 +298,86 @@
     </div>
 
     <section>
-      <h2>Your notes are just files</h2>
-      <p class="intro">A library is any folder you pick. Notes are <code>.md</code> files, folders
-        are folders, and attachments live in <code>assets/</code>. The only thing Skerry adds is a
-        <code>.skerry/</code> cache for the search index, and it rebuilds if you delete it. Delete
-        the app and your notes are still there, readable in any editor. The on-disk format is
-        written down in <a href="https://github.com/dcadolph/skerry/blob/main/FORMAT.md">FORMAT.md</a>.</p>
+      <h2>Encryption you can check</h2>
+      <p class="intro">Set a passphrase once, then seal any note from its menu. A security claim without a threat model is marketing, so <a href="threat-model.html">the threat model</a> says what Skerry protects, what it cannot, and how the cryptography works. The scheme is in <a href="https://github.com/dcadolph/skerry/blob/main/FORMAT.md">FORMAT.md</a> and the code is open.</p>
       <div class="grid">
         <div class="card">
-          <h3>No accounts</h3>
-          <p>No sign-up, no server, no analytics. Skerry never sends your notes anywhere you did
-            not point it.</p>
+          <h3>AES-256-GCM per note</h3>
+          <p>A random 256-bit master key seals each note, with ChaCha20-Poly1305 as a choice. The master key is wrapped by a key stretched from your passphrase with Argon2id. A modified note fails to open instead of opening wrong.</p>
         </div>
         <div class="card">
-          <h3>Edits from anywhere</h3>
-          <p>Rename or move a note and the file moves on disk. Change a file in another editor and
-            Skerry picks it up within about a second.</p>
+          <h3>Nothing left in the clear</h3>
+          <p>A sealed note becomes an opaque <code>&lt;id&gt;.md</code> file. Its title, tags, dates, and body are all ciphertext, and it stays out of the search index.</p>
         </div>
         <div class="card">
-          <h3>Search that keeps up</h3>
-          <p>Full-text search runs on a local SQLite FTS5 index with prefix matching. The command
-            palette jumps to any note by fuzzy title or path.</p>
+          <h3>Decoy and self-destruct</h3>
+          <p>An optional decoy passphrase opens a separate, innocent library from the same prompt. Another option erases this device's vault key after repeated wrong guesses.</p>
         </div>
         <div class="card">
-          <h3>Tags, stars, and a real Trash</h3>
-          <p>Tags with counts, starred and archived views, pinned notes, and a Trash that keeps
-            deleted notes for thirty days.</p>
+          <h3>Sealed before it leaves</h3>
+          <p>Backups and sync objects are encrypted before upload, so your own storage only ever holds ciphertext under opaque names.</p>
+        </div>
+        <div class="card">
+          <h3>Keychain and Touch ID</h3>
+          <p>The passphrase is held in the Keychain and released only after you authenticate. A one-time recovery code is a second way in.</p>
+        </div>
+        <div class="card">
+          <h3>Locks that close</h3>
+          <p>Per-note locks, auto-lock timers, and a privacy cover in the app switcher. Text copied from an encrypted note leaves the clipboard after a minute.</p>
+        </div>
+        <div class="card">
+          <h3>Cheap passphrase changes</h3>
+          <p>Changing your passphrase re-wraps the master key, so no note has to be re-encrypted.</p>
+        </div>
+        <div class="card">
+          <h3>Checked against the spec</h3>
+          <p>The Argon2id implementation is gated on the RFC 9106 test vectors, and the cryptographic core ships with its tests.</p>
         </div>
       </div>
     </section>
 
     <section>
-      <h2>Encryption you can check</h2>
-      <p class="intro">Set a passphrase once, then seal any note from its menu. The scheme is
-        documented in FORMAT.md and the code is open.</p>
+      <h2>Your notes are just files</h2>
+      <p class="intro">A library is any folder you pick. Notes are <code>.md</code> files, folders are folders, and attachments live in <code>assets/</code>. The only thing Skerry adds is a <code>.skerry/</code> cache for the search index, and it rebuilds if you delete it. Delete the app and your notes are still there, readable in any editor. The on-disk format is written down in <a href="https://github.com/dcadolph/skerry/blob/main/FORMAT.md">FORMAT.md</a>.</p>
       <div class="grid">
         <div class="card">
-          <h3>AES-256-GCM per note</h3>
-          <p>A random 256-bit master key seals each note. The master key is wrapped by a key
-            stretched from your passphrase with Argon2id.</p>
+          <h3>Bring your old notes</h3>
+          <p>Import from Bear, Obsidian, Apple Notes, Evernote exports, or plain Markdown. Inline tags become real tags, and Evernote attachments come along.</p>
         </div>
         <div class="card">
-          <h3>Nothing left in the clear</h3>
-          <p>A sealed note becomes an opaque <code>&lt;id&gt;.md</code> file. Its title, tags,
-            dates, and body are all ciphertext, and it stays out of the search index.</p>
+          <h3>Edits from anywhere</h3>
+          <p>Rename or move a note and the file moves on disk. Change a file in another editor and Skerry picks it up within about a second.</p>
         </div>
         <div class="card">
-          <h3>Keychain and Touch ID</h3>
-          <p>The passphrase is held in the Keychain and released only after you authenticate. A
-            one-time recovery code is a second way in.</p>
+          <h3>Search that keeps up</h3>
+          <p>Full-text search runs on a local SQLite FTS5 index with prefix matching. The command palette jumps to any note by fuzzy title or path.</p>
         </div>
         <div class="card">
-          <h3>Cheap passphrase changes</h3>
-          <p>Changing your passphrase re-wraps the master key, so no note has to be re-encrypted.</p>
+          <h3>Tags, stars, and a real Trash</h3>
+          <p>Tags with counts, starred and archived views, pinned notes, and a Trash that keeps deleted notes for thirty days.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Always at hand</h2>
+      <p class="intro">Capture without opening the app, and let the rest of your Mac reach your notes.</p>
+      <div class="grid">
+        <div class="card">
+          <h3>Menu bar capture</h3>
+          <p>Type a thought into the menu bar window and save it as a note without bringing the app forward.</p>
+        </div>
+        <div class="card">
+          <h3>Shortcuts and Siri</h3>
+          <p>Create Note, Append to Note, and Search Notes are available as actions, so your notes join your automations.</p>
+        </div>
+        <div class="card">
+          <h3>On-device summaries and tags</h3>
+          <p>On Macs with Apple Intelligence, Skerry can summarize a note and suggest tags with Apple's on-device model. Nothing leaves the Mac.</p>
+        </div>
+        <div class="card">
+          <h3>Insights</h3>
+          <p>Library size, writing streaks, open tasks, and tag counts in one sheet.</p>
         </div>
       </div>
     </section>
@@ -442,6 +469,7 @@
         <a href="https://github.com/dcadolph/skerry">GitHub</a>
         <a href="https://github.com/dcadolph/skerry/blob/main/FORMAT.md">File format</a>
         <a href="https://github.com/dcadolph/skerry/issues">Report an issue</a>
+        <a href="threat-model.html">Threat model</a>
         <a href="privacy.html">Privacy</a>
         <a href="https://github.com/dcadolph/skerry/blob/main/LICENSE">Apache 2.0 license</a>
       </nav>

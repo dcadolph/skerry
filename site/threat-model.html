@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Threat Model — Skerry</title>
+<meta name="description" content="What Skerry's encryption protects against, what it does not, and exactly how the crypto works. AES-256-GCM, Argon2id, a master-key hierarchy, and an open format.">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  :root {
+    --abyss: #08080a; --sea-night: #121216; --hair: rgba(202, 196, 188, 0.14);
+    --foam: #f3f1ec; --mist: #aca69d; --dim: #7c766d; --beak: #e58150;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: var(--sans); color: var(--foam); line-height: 1.65;
+    background:
+      radial-gradient(900px 520px at 50% -14%, rgba(224, 122, 69, 0.12) 0%, rgba(224, 122, 69, 0) 60%),
+      linear-gradient(180deg, var(--sea-night) 0%, var(--abyss) 100%);
+    background-attachment: fixed;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+  nav { padding: 26px 0; }
+  nav a { color: var(--mist); text-decoration: none; font-size: 0.94rem; }
+  nav a:hover { color: var(--beak); }
+  .brand { font-family: var(--serif); font-weight: 600; color: var(--foam); font-size: 1.1rem; }
+  header { padding: 30px 0 10px; }
+  .eyebrow { font-family: var(--mono); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--beak); margin: 0 0 14px; }
+  h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(2rem, 5vw, 2.9rem); line-height: 1.1; letter-spacing: -0.015em; margin: 0 0 10px; }
+  .updated { color: var(--dim); font-size: 0.86rem; font-family: var(--mono); }
+  .lead { font-size: 1.14rem; color: var(--foam); margin: 26px 0 8px; }
+  h2 { font-family: var(--serif); font-weight: 600; font-size: 1.32rem; margin: 40px 0 10px; }
+  p { color: var(--mist); margin: 0 0 14px; }
+  strong { color: var(--foam); font-weight: 600; }
+  a { color: var(--beak); }
+  code { font-family: var(--mono); font-size: 0.88em; color: var(--foam); }
+  .panel { border: 1px solid var(--hair); border-radius: 16px; padding: 24px 26px; background: rgba(255, 255, 255, 0.02); margin: 24px 0; }
+  ul { color: var(--mist); padding-left: 20px; margin: 0 0 14px; }
+  li { margin-bottom: 8px; }
+  footer { border-top: 1px solid var(--hair); margin-top: 56px; }
+  .foot { padding: 34px 0 60px; color: var(--dim); font-size: 0.88rem; display: flex; flex-wrap: wrap; gap: 6px 16px; }
+  .foot a { color: var(--mist); text-decoration: none; }
+  .foot a:hover { color: var(--beak); }
+</style>
+</head>
+<body>
+<nav class="wrap"><a href="index.html">&larr; <span class="brand">Skerry</span></a></nav>
+
+<header class="wrap">
+  <p class="eyebrow">Threat model</p>
+  <h1>What the encryption is for.</h1>
+  <p class="updated">Updated 23 October 2026</p>
+</header>
+
+<main class="wrap">
+  <p class="lead">A security claim without a threat model is marketing. This page says
+    exactly what Skerry protects you from, what it cannot protect you from, and how the
+    cryptography works, so you can check our claims instead of trusting them.</p>
+
+  <h2>What Skerry protects against</h2>
+  <div class="panel">
+    <ul>
+      <li><strong>Anyone who gets your files but not your passphrase.</strong> A stolen
+        laptop backup, a subpoenaed cloud drive, a nosy sync provider, a lost hard disk.
+        An encrypted note is an opaque sealed envelope: title, tags, dates, and body all
+        live inside the ciphertext, and the file is named by a random id. Encrypted
+        backups and sync objects are sealed the same way before they leave the device, so
+        your own storage only ever holds ciphertext under opaque names.</li>
+      <li><strong>Password-guessing at scale.</strong> The master key is wrapped by a key
+        derived from your passphrase with Argon2id, a memory-hard function that makes GPU
+        and ASIC guessing enormously more expensive than older derivations. Older
+        libraries upgrade automatically on their next unlock.</li>
+      <li><strong>Tampering.</strong> Every sealed object is authenticated AEAD,
+        AES-256-GCM by default with ChaCha20-Poly1305 as a choice. A modified note,
+        backup, or sync manifest fails to open rather than opening wrong.</li>
+      <li><strong>Us.</strong> Skerry has no servers, no accounts, and no telemetry.
+        There is nothing to breach on our side and nothing for us to hand over.</li>
+      <li><strong>Shoulder time on an unlocked device.</strong> Per-note locks behind
+        Face ID or Touch ID, auto-lock timers, an app-switcher privacy cover while the
+        vault is open, and clipboard copies from encrypted notes that expire after a
+        minute.</li>
+      <li><strong>Coerced unlocks, within limits.</strong> An optional decoy passphrase
+        opens a separate, innocuous library from the same prompt, and an optional
+        erase-after-failures setting destroys this device's vault key after repeated
+        wrong guesses. The erase is local: copies of the keyfile on your own backups or
+        sync storage remain, protected by your passphrase.</li>
+    </ul>
+  </div>
+
+  <h2>What Skerry cannot protect against</h2>
+  <div class="panel">
+    <ul>
+      <li><strong>A compromised device.</strong> Malware with your session, a keylogger,
+        or an attacker using your unlocked phone can read what you can read. No app
+        survives a hostile operating system.</li>
+      <li><strong>A weak or reused passphrase.</strong> Argon2id slows guessing; it
+        cannot make a guessable passphrase strong.</li>
+      <li><strong>Losing both the passphrase and the recovery code.</strong> There is no
+        reset, because a reset path for you would be a back door for everyone else.</li>
+      <li><strong>Traffic analysis of your own storage.</strong> A sync remote learns
+        that encrypted objects change and roughly when. It never learns names, titles,
+        or contents.</li>
+      <li><strong>Notes you choose not to encrypt.</strong> Plain notes are plain
+        Markdown files on your disk, by design. Encrypt the ones that matter, or use
+        encrypted backups so every copy that leaves the device is sealed.</li>
+    </ul>
+  </div>
+
+  <h2>How the cryptography works</h2>
+  <p>A random 256-bit master key encrypts your notes with AES-256-GCM. That master key is
+    itself wrapped by a key derived from your passphrase with Argon2id (RFC 9106: 64 MiB,
+    3 passes, 4 lanes), and stored in a keyfile beside your notes. A recovery code is a
+    second, independent wrapping of the same master key. Changing the passphrase re-wraps
+    one key instead of re-encrypting your library. Attachments in encrypted notes are
+    sealed under the same master key. Backups and sync objects are sealed before upload;
+    the sync file listing itself travels inside a sealed, authenticated manifest.</p>
+  <p>The search index never stores encrypted note content. While the vault is unlocked,
+    encrypted notes are searched through an index that lives only in memory and vanishes
+    on lock. The passphrase is held in a zeroizing buffer and wiped when the vault
+    locks. Server credentials for backup and sync, the URL included, live only in the
+    device Keychain, never in settings files, and you can skip giving Skerry a login
+    entirely by mounting the server in Files or Finder and syncing through the
+    folder.</p>
+
+  <h2>Check it yourself</h2>
+  <p>The note format and the entire cryptographic core are open source, with the format
+    documented in plain language and the Argon2id implementation gated on the RFC's own
+    test vectors. Read the code, run the tests, or write your own client:
+    <a href="https://github.com/dcadolph/skerry/blob/main/FORMAT.md">github.com/dcadolph/skerry</a>.</p>
+  <p>Found a weakness? Tell us at <a href="mailto:hello@skerrynotes.com">hello@skerrynotes.com</a>.
+    We will credit you and fix it.</p>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a href="index.html">Skerry</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="threat-model.html">Threat model</a>
+    <span>&copy; 2026</span>
+  </div>
+</footer>
+</body>
+</html>
