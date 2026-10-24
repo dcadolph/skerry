@@ -230,11 +230,41 @@
 
   .steps li { margin-bottom: 0.6rem; }
 
+  .note {
+    margin: 1.25rem 0 0;
+    font-size: 0.92rem;
+    color: var(--dim);
+    max-width: none;
+  }
+
   .platforms {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
     gap: 1rem;
   }
+
+  .get-mac {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+    gap: 1.5rem 2.5rem;
+    padding: 1.6rem 1.75rem;
+  }
+
+  .get-alt pre { margin-top: 0; }
+
+  .get-alt p { margin-top: 0.9rem; }
+
+  .ios-note {
+    margin: 0;
+    padding: 0.9rem 1.35rem;
+    border: 1px dashed var(--line);
+    border-radius: 14px;
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--mist);
+    max-width: none;
+  }
+
+  .ios-note strong { color: var(--fg); }
 
   .platforms .card p + p { margin-top: 0.6rem; }
 
@@ -255,11 +285,13 @@
     padding: 2rem 0 3rem;
     font-size: 0.9rem;
     color: var(--dim);
+    text-align: center;
   }
 
   footer nav {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 0.5rem 1.5rem;
     margin-bottom: 0.75rem;
   }
@@ -437,28 +469,58 @@
       </div>
     </section>
 
+    <section>
+      <h2>Why Skerry, next to Obsidian</h2>
+      <p class="intro">Obsidian is excellent, and Skerry works the same way at heart: Markdown
+        files in a folder you own. Where they differ is encryption and openness.</p>
+      <div class="grid">
+        <div class="card">
+          <h3>Sealed on disk</h3>
+          <p>Obsidian notes sit on disk as readable text. In Skerry any note can be sealed,
+            title and tags included, so a copied folder or a stolen backup reveals nothing.</p>
+        </div>
+        <div class="card">
+          <h3>Open source</h3>
+          <p>Skerry is Apache 2.0, and the code and on-disk format are public. You can read
+            exactly how your notes are protected.</p>
+        </div>
+        <div class="card">
+          <h3>Free, nothing to buy</h3>
+          <p>There is no paid tier and no account. Sync goes through storage you already have.</p>
+        </div>
+        <div class="card">
+          <h3>Easy to try</h3>
+          <p>Skerry imports Obsidian vaults, and your files stay plain Markdown, so leaving costs
+            nothing.</p>
+        </div>
+      </div>
+      <p class="note">Obsidian has a far larger plugin ecosystem, and Skerry is early. Skerry is
+        for people who want their notes sealed and the code open.</p>
+    </section>
+
     <section id="get">
       <h2>Get Skerry</h2>
       <p class="intro">Skerry is free under the Apache 2.0 license, with no paid tier. It is early
         and changes often, so keep your own backups of anything that matters.</p>
       <div class="platforms">
-        <div class="card">
-          <h3>Mac</h3>
-          <p>Version 0.24.1, signed with a Developer ID and notarized by Apple. Requires macOS 14
-            or later.</p>
-          <div class="actions start">
-            <a class="button primary" href="https://github.com/dcadolph/skerry/releases/latest">Download for Mac</a>
+        <div class="card get-mac">
+          <div class="get-main">
+            <h3>Mac</h3>
+            <p>Version 0.24.1, signed with a Developer ID and notarized by Apple. Requires macOS 14
+              or later.</p>
+            <div class="actions start">
+              <a class="button primary" href="https://github.com/dcadolph/skerry/releases/latest">Download for Mac</a>
+            </div>
           </div>
-          <p>Or install with Homebrew:</p>
+          <div class="get-alt">
+            <h3>Install with Homebrew</h3>
 <pre><code>brew install --cask dcadolph/tap/skerry</code></pre>
-          <p>To build it yourself you need Xcode and
-            <a href="https://github.com/yonaskolb/XcodeGen">XcodeGen</a>. The steps are in the
-            <a href="https://github.com/dcadolph/skerry#building-from-source">README</a>.</p>
+            <p>To build it yourself you need Xcode and
+              <a href="https://github.com/yonaskolb/XcodeGen">XcodeGen</a>. The steps are in the
+              <a href="https://github.com/dcadolph/skerry#building-from-source">README</a>.</p>
+          </div>
         </div>
-        <div class="card">
-          <h3>iPhone and iPad</h3>
-          <p>The iOS app is not available yet.</p>
-        </div>
+        <p class="ios-note"><strong>iPhone and iPad:</strong> the iOS app is not available yet.</p>
       </div>
     </section>
   </div>
